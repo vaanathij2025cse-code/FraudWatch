@@ -11,13 +11,25 @@ import java.util.Optional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final FraudDetectionService fraudDetectionService;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService(
+            TransactionRepository transactionRepository,
+            FraudDetectionService fraudDetectionService) {
+
         this.transactionRepository = transactionRepository;
+        this.fraudDetectionService = fraudDetectionService;
     }
 
     public Transaction saveTransaction(Transaction transaction) {
-        return transactionRepository.save(transaction);
+
+        Transaction savedTransaction =
+                transactionRepository.save(transaction);
+
+        // Check the transaction for fraud
+        fraudDetectionService.checkTransaction(savedTransaction);
+
+        return savedTransaction;
     }
 
     public List<Transaction> getAllTransactions() {
@@ -28,10 +40,9 @@ public class TransactionService {
         return transactionRepository.findById(id);
     }
 
-    public void deleteTransaction(Long id) {
-        transactionRepository.deleteById(id);
-    }
-    public Transaction updateTransaction(Long id, Transaction transaction) {
+    public Transaction updateTransaction(
+            Long id,
+            Transaction transaction) {
 
         Optional<Transaction> existingTransaction =
                 transactionRepository.findById(id);
@@ -51,4 +62,7 @@ public class TransactionService {
         return null;
     }
 
+    public void deleteTransaction(Long id) {
+        transactionRepository.deleteById(id);
+    }
 }
