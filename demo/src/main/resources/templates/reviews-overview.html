@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manual Reviews')}">
+    <title>Manual Reviews — FraudWatch (Windows UI Kit)</title>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Fluent Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar('reviews')}"></div>
+
+    <!-- Main Canvas -->
+    <div class="app-main">
+        <!-- Topbar -->
+        <header th:replace="~{fragments/layout :: topbar('Manual Compliance Center', 'Track completed audit reviews and resolve pending flagged transactions')}"></header>
+
+        <main class="content-body">
+            <!-- Flash Alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Top Metric Highlights -->
+            <div class="metrics-grid">
+                <div class="metric-card m-pending">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Pending Action</span>
+                        <div class="metric-card-icon">⏳</div>
+                    </div>
+                    <div class="metric-value" th:text="${pendingCount}">0</div>
+                    <div class="metric-sub">Transactions requiring immediate review</div>
+                </div>
+
+                <div class="metric-card m-reviews">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Audit Log Entries</span>
+                        <div class="metric-card-icon">📋</div>
+                    </div>
+                    <div class="metric-value" th:text="${#lists.size(reviewOutcomes)}">0</div>
+                    <div class="metric-sub">Total recorded review outcomes</div>
+                </div>
+            </div>
+
+            <!-- Pending Review Queue -->
+            <div class="win-card" th:if="${pendingCount > 0}">
+                <div class="win-card-header" style="background-color: var(--status-pending-bg);">
+                    <div>
+                        <h3 class="win-card-title" style="color: var(--status-pending-text);">⚠️ Urgent: Pending Reviews Awaiting Decision</h3>
+                        <p class="win-card-subtitle">Resolve these anomalies to either release or permanently block transaction processing</p>
+                    </div>
+                </div>
+                <div class="win-card-body" style="padding: 0;">
+                    <div class="table-responsive">
+                        <table class="win-table">
+                            <thead>
+                                <tr>
+                                    <th>Flag ID</th>
+                                    <th>Transaction</th>
+                                    <th>Rule</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="flag : ${allFlagged}" th:if="${flag.status == 'PENDING'}">
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'#' + ${flag.id}">#1</td>
+                                    <td>
+                                        <span th:text="'Tx #' + ${flag.transaction.id} + ' ($' + ${#numbers.formatDecimal(flag.transaction.amount, 1, 2)} + ')'">Tx #1</span>
+                                    </td>
+                                    <td th:text="${flag.rule.ruleName}">Rule</td>
+                                    <td th:text="${flag.reason}">Reason</td>
+                                    <td><span class="badge badge-pending">PENDING</span></td>
+                                    <td style="text-align: right;">
+                                        <a th:href="@{/review/{id}(id=${flag.id})}" class="btn btn-primary btn-sm">Review Decision →</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Reviews Table -->
+            <div class="win-card">
+                <div class="win-card-header">
+                    <div>
+                        <h3 class="win-card-title">Review Outcomes History</h3>
+                        <p class="win-card-subtitle">Complete historical log of manual compliance decisions</p>
+                    </div>
+                    <span class="badge badge-purple" th:text="${#lists.size(reviewOutcomes)} + ' Reviews'">0 Reviews</span>
+                </div>
+
+                <div class="win-card-body" style="padding: 0;">
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(reviewOutcomes)}" class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h4>No review outcomes recorded</h4>
+                        <p>When compliance officers review pending flagged transactions, their decisions will appear here.</p>
+                        <div style="margin-top: 16px;">
+                            <a th:href="@{/flagged-page}" class="btn btn-secondary btn-sm">Go to Flagged Transactions</a>
+                        </div>
+                    </div>
+
+                    <!-- Reviews Table -->
+                    <div th:if="${not #lists.isEmpty(reviewOutcomes)}" class="table-responsive">
+                        <table class="win-table">
+                            <thead>
+                                <tr>
+                                    <th>Review ID</th>
+                                    <th>Flag Reference</th>
+                                    <th>Outcome</th>
+                                    <th>Reviewer Notes</th>
+                                    <th>Reviewed At</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ro : ${reviewOutcomes}">
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'#' + ${ro.id}">#1</td>
+                                    <td>
+                                        <span th:if="${ro.flaggedTransaction != null}">
+                                            <a th:href="@{/review/{id}(id=${ro.flaggedTransaction.id})}" style="color: #7C5CFC; text-decoration: none; font-weight: 700;"
+                                               th:text="'Flag #' + ${ro.flaggedTransaction.id} + ' (Tx #' + ${ro.flaggedTransaction.transaction.id} + ')'">
+                                                Flag #1
+                                            </a>
+                                        </span>
+                                        <span th:unless="${ro.flaggedTransaction != null}" style="color: var(--text-muted);">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${ro.outcome == 'APPROVED'}" class="badge badge-approved">APPROVED</span>
+                                        <span th:if="${ro.outcome == 'BLOCKED'}" class="badge badge-blocked">BLOCKED</span>
+                                        <span th:if="${ro.outcome != 'APPROVED' and ro.outcome != 'BLOCKED'}" class="badge badge-purple" th:text="${ro.outcome}">OUTCOME</span>
+                                    </td>
+                                    <td style="max-width: 300px; color: #4B5563; font-size: 0.84rem;" th:text="${ro.comment}">Review notes</td>
+                                    <td style="color: #6B7280; font-size: 0.84rem;" th:text="${#temporals.format(ro.reviewedAt, 'yyyy-MM-dd HH:mm:ss')}">2026-09-28 12:00:00</td>
+                                    <td style="text-align: right;">
+                                        <a th:if="${ro.flaggedTransaction != null}" th:href="@{/review/{id}(id=${ro.flaggedTransaction.id})}" class="btn btn-secondary btn-sm">
+                                            Inspect
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

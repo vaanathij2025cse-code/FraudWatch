@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard Overview')}">
+    <title>Dashboard Overview — FraudWatch (Windows UI Kit)</title>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Fluent Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar('dashboard')}"></div>
+
+    <!-- Main Canvas -->
+    <div class="app-main">
+        <!-- Topbar -->
+        <header th:replace="~{fragments/layout :: topbar('Dashboard Overview', 'Real-time transaction anomaly detection and compliance overview')}"></header>
+
+        <main class="content-body">
+            <!-- Flash Alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- 6 Windows UI Kit Metric Cards -->
+            <div class="metrics-grid">
+                <!-- 1. Total Transactions -->
+                <div class="metric-card m-tx">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Total Transactions</span>
+                        <div class="metric-card-icon">💳</div>
+                    </div>
+                    <div class="metric-value" th:text="${totalTransactions}">0</div>
+                    <div class="metric-sub">Processed through FraudWatch</div>
+                </div>
+
+                <!-- 2. Flagged Transactions -->
+                <div class="metric-card m-flagged">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Flagged Transactions</span>
+                        <div class="metric-card-icon">⚠️</div>
+                    </div>
+                    <div class="metric-value" th:text="${totalFlagged}">0</div>
+                    <div class="metric-sub">Triggered anomaly rules</div>
+                </div>
+
+                <!-- 3. Pending Reviews -->
+                <div class="metric-card m-pending">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Pending Reviews</span>
+                        <div class="metric-card-icon">⏳</div>
+                    </div>
+                    <div class="metric-value" th:text="${pendingReviews}">0</div>
+                    <div class="metric-sub">Awaiting compliance review</div>
+                </div>
+
+                <!-- 4. Blocked Transactions -->
+                <div class="metric-card m-blocked">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Blocked</span>
+                        <div class="metric-card-icon">🚫</div>
+                    </div>
+                    <div class="metric-value" th:text="${blockedTransactions}">0</div>
+                    <div class="metric-sub">Confirmed fraud anomalies</div>
+                </div>
+
+                <!-- 5. Approved Transactions -->
+                <div class="metric-card m-approved">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Approved</span>
+                        <div class="metric-card-icon">✅</div>
+                    </div>
+                    <div class="metric-value" th:text="${approvedTransactions}">0</div>
+                    <div class="metric-sub">Cleared after review</div>
+                </div>
+
+                <!-- 6. Total Reviews -->
+                <div class="metric-card m-reviews">
+                    <div class="metric-card-top">
+                        <span class="metric-title">Total Reviews</span>
+                        <div class="metric-card-icon">📋</div>
+                    </div>
+                    <div class="metric-value" th:text="${totalReviews}">0</div>
+                    <div class="metric-sub">Recorded audit decisions</div>
+                </div>
+            </div>
+
+            <!-- Flagged Transactions Floating Widget Card -->
+            <div class="win-card">
+                <div class="win-card-header">
+                    <div>
+                        <h2 class="win-card-title">Flagged Anomaly Queue</h2>
+                        <p class="win-card-subtitle">Real-time records flagged by the backend FraudDetectionService</p>
+                    </div>
+                    <div>
+                        <a th:href="@{/flagged-page}" class="btn btn-secondary btn-sm">Full Flagged Table →</a>
+                    </div>
+                </div>
+
+                <div class="win-card-body" style="padding: 0;">
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(flaggedTransactions)}" class="empty-state">
+                        <div class="empty-state-icon">🛡️</div>
+                        <h4>No flagged transactions found</h4>
+                        <p>All transactions are currently within normal thresholds or no rules have triggered an anomaly.</p>
+                        <div style="margin-top: 16px;">
+                            <a th:href="@{/transactions-page}" class="btn btn-primary btn-sm">Process New Transaction</a>
+                        </div>
+                    </div>
+
+                    <!-- Table with Records -->
+                    <div th:if="${not #lists.isEmpty(flaggedTransactions)}" class="table-responsive">
+                        <table class="win-table">
+                            <thead>
+                                <tr>
+                                    <th>Flag ID</th>
+                                    <th>Transaction ID</th>
+                                    <th>Rule Details</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="flag : ${flaggedTransactions}">
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'#' + ${flag.id}">#1</td>
+                                    <td>
+                                        <a th:href="@{/transactions-page}" style="color: #7C5CFC; text-decoration: none; font-weight: 700;" th:text="'Tx #' + ${flag.transaction.id}">Tx #1</a>
+                                    </td>
+                                    <td th:text="'Rule #' + ${flag.rule.id} + ' (' + ${flag.rule.ruleName} + ')'">Rule #1</td>
+                                    <td style="color: #4B5563; font-size: 0.84rem;" th:text="${flag.reason}">Amount exceeded the allowed threshold</td>
+                                    <td>
+                                        <span th:if="${flag.status == 'PENDING'}" class="badge badge-pending">PENDING</span>
+                                        <span th:if="${flag.status == 'APPROVED'}" class="badge badge-approved">APPROVED</span>
+                                        <span th:if="${flag.status == 'BLOCKED'}" class="badge badge-blocked">BLOCKED</span>
+                                        <span th:if="${flag.status != 'PENDING' and flag.status != 'APPROVED' and flag.status != 'BLOCKED'}" class="badge badge-purple" th:text="${flag.status}">STATUS</span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <a th:if="${flag.status == 'PENDING'}" th:href="@{/review/{id}(id=${flag.id})}" class="btn btn-primary btn-sm">
+                                            Review
+                                        </a>
+                                        <a th:if="${flag.status != 'PENDING'}" th:href="@{/review/{id}(id=${flag.id})}" class="btn btn-secondary btn-sm">
+                                            Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

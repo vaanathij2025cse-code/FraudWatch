@@ -1,0 +1,834 @@
+/* ==========================================================================
+   FraudWatch — Windows UI Kit / Fluent Design System (Light Theme)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Fluent Windows Pastel Palette */
+    --win-bg-base: #F4F3FA;
+    --win-bg-acrylic: rgba(255, 255, 255, 0.82);
+    --win-card-bg: #FFFFFF;
+    --win-surface-hover: #F8F7FD;
+    --win-border: #E8E5F4;
+    --win-border-light: rgba(232, 229, 244, 0.7);
+    --win-border-focus: #7C5CFC;
+
+    /* Accent Colors - Windows Purple */
+    --accent-primary: #7C5CFC;
+    --accent-hover: #6944FA;
+    --accent-active: #5833E6;
+    --accent-subtle: #F3EFFF;
+    --accent-subtle-border: #DDD6FE;
+    --accent-gradient: linear-gradient(135deg, #7C5CFC 0%, #6366F1 100%);
+    --accent-glow: rgba(124, 92, 252, 0.28);
+
+    /* Text & Typography */
+    --text-primary: #1E1B4B;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --font-main: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", Roboto, sans-serif;
+
+    /* Status Badges - Fluent Style */
+    --status-approved-bg: #ECFDF5;
+    --status-approved-text: #059669;
+    --status-approved-border: #A7F3D0;
+
+    --status-blocked-bg: #FFF1F2;
+    --status-blocked-text: #E11D48;
+    --status-blocked-border: #FECDD3;
+
+    --status-pending-bg: #FFFBEB;
+    --status-pending-text: #D97706;
+    --status-pending-border: #FDE68A;
+
+    --status-info-bg: #EFF6FF;
+    --status-info-text: #2563EB;
+    --status-info-border: #BFDBFE;
+
+    /* Metrics Accent Colors */
+    --metric-tx-bg: #F5F3FF;
+    --metric-tx-color: #7C5CFC;
+    --metric-flag-bg: #FFFBEB;
+    --metric-flag-color: #D97706;
+    --metric-pending-bg: #FEF3C7;
+    --metric-pending-color: #B45309;
+    --metric-blocked-bg: #FFF1F2;
+    --metric-blocked-color: #E11D48;
+    --metric-approved-bg: #ECFDF5;
+    --metric-approved-color: #059669;
+    --metric-reviews-bg: #EEF2FF;
+    --metric-reviews-color: #4F46E5;
+
+    /* Shadows & Elevation */
+    --shadow-sm: 0 2px 4px rgba(124, 92, 252, 0.04);
+    --shadow-card: 0 4px 20px -2px rgba(124, 92, 252, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+    --shadow-card-hover: 0 10px 28px -4px rgba(124, 92, 252, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+    --shadow-popover: 0 16px 36px -6px rgba(30, 27, 75, 0.12);
+
+    /* Radii */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 9999px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--win-bg-base);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(124, 92, 252, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(147, 197, 253, 0.1) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(196, 181, 253, 0.08) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   Windows UI Kit Layout (Sidebar + Main Acrylic Canvas)
+   ========================================================================== */
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.app-sidebar {
+    width: 270px;
+    background: var(--win-card-bg);
+    border-right: 1px solid var(--win-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    box-shadow: 2px 0 16px rgba(124, 92, 252, 0.03);
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: 24px 22px 20px;
+    border-bottom: 1px solid var(--win-border);
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.brand-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-gradient);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px var(--accent-glow);
+    flex-shrink: 0;
+}
+
+.brand-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    display: block;
+    line-height: 1.2;
+}
+
+.brand-subtitle {
+    font-size: 0.73rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+.sidebar-nav {
+    padding: 20px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-section-title {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 8px 12px 4px;
+    font-weight: 700;
+}
+
+.sidebar-nav a,
+.sidebar-nav button.nav-link-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 14px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: left;
+}
+
+.nav-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav button.nav-link-btn:hover {
+    background-color: var(--win-surface-hover);
+    color: var(--accent-primary);
+}
+
+.sidebar-nav a.active,
+.sidebar-nav button.nav-link-btn.active {
+    background: var(--accent-subtle);
+    color: var(--accent-primary);
+    border: 1px solid var(--accent-subtle-border);
+    box-shadow: 0 2px 8px rgba(124, 92, 252, 0.1);
+}
+
+.nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+}
+
+/* Keyboard Shortcut Badge (Windows UI Kit Style) */
+.win-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: #FFFFFF;
+    border: 1px solid #D8D4EC;
+    border-bottom: 2px solid #C4BEDE;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-footer {
+    padding: 18px 20px;
+    border-top: 1px solid var(--win-border);
+    background: #FAF9FE;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.system-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--status-approved-text);
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--status-approved-text);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+    animation: winPulse 2s infinite;
+}
+
+@keyframes winPulse {
+    0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(5, 150, 105, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+}
+
+/* Main Area */
+.app-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Topbar Header */
+.top-navbar {
+    background: var(--win-bg-acrylic);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--win-border);
+    padding: 16px 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+}
+
+.page-title-wrap h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.page-title-wrap p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Content Canvas */
+.content-body {
+    padding: 30px 36px 40px;
+    flex-grow: 1;
+}
+
+/* ==========================================================================
+   Windows UI Kit Metric Cards
+   ========================================================================== */
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.metric-card {
+    background: var(--win-card-bg);
+    border: 1px solid var(--win-border);
+    border-radius: var(--radius-lg);
+    padding: 22px 20px;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: #D8D4EC;
+}
+
+.metric-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.metric-card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.metric-card.m-tx .metric-card-icon { background: var(--metric-tx-bg); color: var(--metric-tx-color); }
+.metric-card.m-flagged .metric-card-icon { background: var(--metric-flag-bg); color: var(--metric-flag-color); }
+.metric-card.m-pending .metric-card-icon { background: var(--metric-pending-bg); color: var(--metric-pending-color); }
+.metric-card.m-blocked .metric-card-icon { background: var(--metric-blocked-bg); color: var(--metric-blocked-color); }
+.metric-card.m-approved .metric-card-icon { background: var(--metric-approved-bg); color: var(--metric-approved-color); }
+.metric-card.m-reviews .metric-card-icon { background: var(--metric-reviews-bg); color: var(--metric-reviews-color); }
+
+.metric-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.metric-value {
+    font-size: 2.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+.metric-sub {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ==========================================================================
+   Windows Floating Widget Cards (Panels)
+   ========================================================================== */
+
+.win-card {
+    background: var(--win-card-bg);
+    border: 1px solid var(--win-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    margin-bottom: 28px;
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+}
+
+.win-card:hover {
+    border-color: #DDD8F0;
+}
+
+.win-card-header {
+    padding: 20px 26px;
+    border-bottom: 1px solid var(--win-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #FFFFFF;
+}
+
+.win-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.win-card-subtitle {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-top: 3px;
+}
+
+.win-card-body {
+    padding: 26px;
+}
+
+/* ==========================================================================
+   Windows UI Kit Forms & Inputs
+   ========================================================================== */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.win-input,
+.form-control {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    border: 1px solid #D8D4EC;
+    border-radius: var(--radius-sm);
+    background-color: #FFFFFF;
+    color: var(--text-primary);
+    transition: all 0.15s ease;
+}
+
+.win-input:focus,
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(124, 92, 252, 0.15);
+    background-color: #FFFFFF;
+}
+
+.form-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Fluent Toggle Switch */
+.win-switch-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 26px;
+    cursor: pointer;
+}
+
+.win-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.win-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.win-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #D1D5DB;
+    transition: .2s;
+    border-radius: 24px;
+}
+
+.win-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.win-switch input:checked + .win-slider {
+    background-color: var(--accent-primary);
+}
+
+.win-switch input:checked + .win-slider:before {
+    transform: translateX(20px);
+}
+
+.win-switch-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Windows Action Buttons
+   ========================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary {
+    background: var(--accent-gradient);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #6944FA 0%, #4F46E5 100%);
+    box-shadow: 0 4px 14px var(--accent-glow);
+    color: #FFFFFF;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border: 1px solid #D8D4EC;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-secondary:hover {
+    background: var(--win-surface-hover);
+    border-color: #C7C2E4;
+    color: var(--accent-primary);
+}
+
+.btn-success {
+    background: #059669;
+    color: white;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+
+.btn-success:hover {
+    background: #047857;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background: #E11D48;
+    color: white;
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
+}
+
+.btn-danger:hover {
+    background: #BE123C;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+/* ==========================================================================
+   Windows UI Kit Data Tables
+   ========================================================================== */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.win-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+    font-size: 0.88rem;
+}
+
+.win-table th {
+    background-color: #FAF9FE;
+    color: #555170;
+    font-weight: 700;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--win-border);
+}
+
+.win-table td {
+    padding: 15px 20px;
+    border-bottom: 1px solid #F0EEF8;
+    color: var(--text-primary);
+    vertical-align: middle;
+    transition: background-color 0.1s ease;
+}
+
+.win-table tbody tr:hover td {
+    background-color: #FAF9FE;
+}
+
+.win-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ==========================================================================
+   Fluent Status Badges
+   ========================================================================== */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: var(--radius-pill);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.badge-approved {
+    background-color: var(--status-approved-bg);
+    color: var(--status-approved-text);
+    border: 1px solid var(--status-approved-border);
+}
+
+.badge-blocked {
+    background-color: var(--status-blocked-bg);
+    color: var(--status-blocked-text);
+    border: 1px solid var(--status-blocked-border);
+}
+
+.badge-pending {
+    background-color: var(--status-pending-bg);
+    color: var(--status-pending-text);
+    border: 1px solid var(--status-pending-border);
+}
+
+.badge-purple {
+    background-color: var(--accent-subtle);
+    color: var(--accent-primary);
+    border: 1px solid var(--accent-subtle-border);
+}
+
+.badge-gray {
+    background-color: #F3F4F6;
+    color: #6B7280;
+    border: 1px solid #E5E7EB;
+}
+
+/* ==========================================================================
+   Floating Toast Notifications (Windows Action Center Style)
+   ========================================================================== */
+
+.toast-container-win {
+    position: fixed;
+    top: 24px;
+    right: 28px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.win-toast {
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(20px);
+    border: 1px solid #E4E0F4;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    min-width: 320px;
+    max-width: 420px;
+    box-shadow: var(--shadow-popover);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.3s ease;
+}
+
+.win-toast.toast-success { border-left: 4px solid var(--status-approved-text); }
+.win-toast.toast-danger { border-left: 4px solid var(--status-blocked-text); }
+.win-toast.toast-info { border-left: 4px solid var(--accent-primary); }
+
+.toast-content h5 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    color: var(--text-primary);
+}
+
+.toast-content p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+@keyframes toastSlideIn {
+    from { opacity: 0; transform: translateX(20px) scale(0.96); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 56px 24px;
+    color: var(--text-muted);
+}
+
+.empty-state-icon {
+    font-size: 3.2rem;
+    margin-bottom: 14px;
+    opacity: 0.85;
+}
+
+.empty-state h4 {
+    font-size: 1.15rem;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.empty-state p {
+    font-size: 0.86rem;
+    max-width: 420px;
+    margin: 0 auto;
+    color: var(--text-secondary);
+}
+
+/* Preset Buttons */
+.preset-badge-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #FAF9FE;
+    border: 1px solid #D8D4EC;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.preset-badge-btn:hover {
+    background: var(--accent-subtle);
+    border-color: var(--accent-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 860px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .app-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .content-body {
+        padding: 20px;
+    }
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

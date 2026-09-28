@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Flagged Transactions')}">
+    <title>Flagged Transactions — FraudWatch (Windows UI Kit)</title>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Fluent Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar('flagged')}"></div>
+
+    <!-- Main Canvas -->
+    <div class="app-main">
+        <!-- Topbar -->
+        <header th:replace="~{fragments/layout :: topbar('Flagged Transactions', 'Transactions flagged as anomalies by backend automated rules')}"></header>
+
+        <main class="content-body">
+            <!-- Flash Alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Flagged Transactions Panel -->
+            <div class="win-card">
+                <div class="win-card-header">
+                    <div>
+                        <h3 class="win-card-title">Flagged Anomaly Queue</h3>
+                        <p class="win-card-subtitle">Transactions requiring manual review or security action</p>
+                    </div>
+                    <div>
+                        <span class="badge badge-pending" th:text="${#lists.size(flaggedTransactions)} + ' Flagged'">0 Flagged</span>
+                    </div>
+                </div>
+
+                <div class="win-card-body" style="padding: 0;">
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(flaggedTransactions)}" class="empty-state">
+                        <div class="empty-state-icon">🛡️</div>
+                        <h4>No flagged transactions found</h4>
+                        <p>No transactions have breached any active fraud detection rules.</p>
+                        <div style="margin-top: 16px;">
+                            <a th:href="@{/transactions-page}" class="btn btn-primary btn-sm">Submit Test Transaction</a>
+                        </div>
+                    </div>
+
+                    <!-- Flagged Table -->
+                    <div th:if="${not #lists.isEmpty(flaggedTransactions)}" class="table-responsive">
+                        <table class="win-table">
+                            <thead>
+                                <tr>
+                                    <th>Flag ID</th>
+                                    <th>Tx ID</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Amount</th>
+                                    <th>Rule Triggered</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="flag : ${flaggedTransactions}">
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'#' + ${flag.id}">#1</td>
+                                    <td>
+                                        <span style="font-family: monospace; font-weight: 600; color: #7C5CFC;" th:text="'Tx #' + ${flag.transaction.id}">Tx #1</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-family: monospace;" th:text="${flag.transaction.sender}">ACC-100</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-family: monospace;" th:text="${flag.transaction.receiver}">ACC-200</span>
+                                    </td>
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'$' + ${#numbers.formatDecimal(flag.transaction.amount, 1, 2)}">$15,000.00</td>
+                                    <td>
+                                        <span style="font-weight: 600;" th:text="${flag.rule.ruleName}">High Amount Rule</span>
+                                    </td>
+                                    <td style="max-width: 250px; font-size: 0.84rem; color: #4B5563;" th:text="${flag.reason}">
+                                        Transaction amount exceeded the allowed threshold
+                                    </td>
+                                    <td>
+                                        <span th:if="${flag.status == 'PENDING'}" class="badge badge-pending">PENDING</span>
+                                        <span th:if="${flag.status == 'APPROVED'}" class="badge badge-approved">APPROVED</span>
+                                        <span th:if="${flag.status == 'BLOCKED'}" class="badge badge-blocked">BLOCKED</span>
+                                        <span th:if="${flag.status != 'PENDING' and flag.status != 'APPROVED' and flag.status != 'BLOCKED'}" class="badge badge-purple" th:text="${flag.status}">STATUS</span>
+                                    </td>
+                                    <td style="text-align: right;">
+                                        <div style="display: inline-flex; gap: 6px;">
+                                            <!-- Review Button for PENDING -->
+                                            <a th:if="${flag.status == 'PENDING'}"
+                                               th:href="@{/review/{id}(id=${flag.id})}"
+                                               class="btn btn-primary btn-sm">
+                                                Review
+                                            </a>
+                                            <!-- Details Button for Reviewed -->
+                                            <a th:if="${flag.status != 'PENDING'}"
+                                               th:href="@{/review/{id}(id=${flag.id})}"
+                                               class="btn btn-secondary btn-sm">
+                                                Inspect
+                                            </a>
+                                            <!-- Delete Flag Option -->
+                                            <a th:href="@{/flagged-page/delete/{id}(id=${flag.id})}"
+                                               class="btn btn-secondary btn-sm btn-delete"
+                                               title="Remove Flag">
+                                                ✕
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

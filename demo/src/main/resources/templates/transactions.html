@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Transactions')}">
+    <title>Transactions — FraudWatch (Windows UI Kit)</title>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Fluent Sidebar -->
+    <div th:replace="~{fragments/layout :: sidebar('transactions')}"></div>
+
+    <!-- Main Canvas -->
+    <div class="app-main">
+        <!-- Topbar -->
+        <header th:replace="~{fragments/layout :: topbar('Transactions', 'Submit financial transfers and inspect transaction logs')}"></header>
+
+        <main class="content-body">
+            <!-- Flash Alerts -->
+            <div th:replace="~{fragments/layout :: alerts}"></div>
+
+            <!-- Edit Transaction Form (Shown when editing) -->
+            <div th:if="${editTransaction != null}" class="win-card" style="border-left: 4px solid var(--accent-primary);">
+                <div class="win-card-header" style="background-color: var(--accent-subtle);">
+                    <div>
+                        <h3 class="win-card-title" style="color: var(--accent-primary);">✏️ Edit Transaction #<span th:text="${editTransaction.id}">1</span></h3>
+                        <p class="win-card-subtitle">Modify transaction attributes</p>
+                    </div>
+                    <div>
+                        <a th:href="@{/transactions-page}" class="btn btn-secondary btn-sm">Cancel Edit</a>
+                    </div>
+                </div>
+                <div class="win-card-body">
+                    <form th:action="@{/transactions-page/edit/{id}(id=${editTransaction.id})}" th:object="${editTransaction}" method="post">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="edit-sender">Sender Account</label>
+                                <input type="text" id="edit-sender" class="win-input" th:field="*{sender}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-receiver">Receiver Account</label>
+                                <input type="text" id="edit-receiver" class="win-input" th:field="*{receiver}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-amount">Amount ($)</label>
+                                <input type="number" step="0.01" min="0.01" id="edit-amount" class="win-input" th:field="*{amount}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-timestamp">Timestamp</label>
+                                <input type="datetime-local" id="edit-timestamp" class="win-input" th:field="*{timestamp}">
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button type="submit" class="btn btn-primary">Update Transaction</button>
+                            <a th:href="@{/transactions-page}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Add Transaction Panel -->
+            <div class="win-card">
+                <div class="win-card-header">
+                    <div>
+                        <h3 class="win-card-title">Add New Transaction</h3>
+                        <p class="win-card-subtitle">Submitting triggers automatic backend fraud evaluation via FraudDetectionService</p>
+                    </div>
+                </div>
+                <div class="win-card-body">
+                    <form th:action="@{/transactions-page}" th:object="${transaction}" method="post">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="sender">Sender Account / ID <span style="color: #E11D48;">*</span></label>
+                                <input type="text" id="sender" class="win-input" th:field="*{sender}" placeholder="e.g. ACC-100234" required>
+                                <span class="form-hint">Source account originating the transfer</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="receiver">Receiver Account / ID <span style="color: #E11D48;">*</span></label>
+                                <input type="text" id="receiver" class="win-input" th:field="*{receiver}" placeholder="e.g. ACC-988341" required>
+                                <span class="form-hint">Destination account receiving the funds</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="amount">Amount ($) <span style="color: #E11D48;">*</span></label>
+                                <input type="number" step="0.01" min="0.01" id="amount" class="win-input" th:field="*{amount}" placeholder="e.g. 15000.00" required>
+                                <span class="form-hint">Transfer value in USD</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="timestamp">Timestamp</label>
+                                <input type="datetime-local" id="timestamp" class="win-input" th:field="*{timestamp}">
+                                <span class="form-hint">Defaults to current time if left empty</span>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 24px; display: flex; align-items: center; justify-content: space-between;">
+                            <button type="submit" class="btn btn-primary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Add Transaction
+                            </button>
+                            <span style="font-size: 0.8rem; color: var(--text-secondary);">
+                                🛡️ Checks enabled high-amount and multi-transaction rules automatically
+                            </span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Transaction List Table -->
+            <div class="win-card">
+                <div class="win-card-header">
+                    <div>
+                        <h3 class="win-card-title">All Transactions</h3>
+                        <p class="win-card-subtitle">Total records in database: <strong th:text="${#lists.size(transactions)}">0</strong></p>
+                    </div>
+                    <span class="badge badge-purple" th:text="${#lists.size(transactions)} + ' Records'">0 Records</span>
+                </div>
+
+                <div class="win-card-body" style="padding: 0;">
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(transactions)}" class="empty-state">
+                        <div class="empty-state-icon">💳</div>
+                        <h4>No transactions found</h4>
+                        <p>Start by submitting your first transaction using the form above.</p>
+                    </div>
+
+                    <!-- Transactions Table -->
+                    <div th:if="${not #lists.isEmpty(transactions)}" class="table-responsive">
+                        <table class="win-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sender</th>
+                                    <th>Receiver</th>
+                                    <th>Amount</th>
+                                    <th>Timestamp</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tx : ${transactions}">
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'#' + ${tx.id}">#1</td>
+                                    <td>
+                                        <span style="font-family: monospace; font-weight: 600; color: #4B5563;" th:text="${tx.sender}">ACC-101</span>
+                                    </td>
+                                    <td>
+                                        <span style="font-family: monospace; font-weight: 600; color: #4B5563;" th:text="${tx.receiver}">ACC-202</span>
+                                    </td>
+                                    <td style="font-weight: 700; color: #1E1B4B;" th:text="'$' + ${#numbers.formatDecimal(tx.amount, 1, 2)}">$1,000.00</td>
+                                    <td style="color: #6B7280; font-size: 0.84rem;" th:text="${#temporals.format(tx.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-09-28 12:00:00</td>
+                                    <td style="text-align: right;">
+                                        <div style="display: inline-flex; gap: 6px;">
+                                            <!-- View Modal Trigger -->
+                                            <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" th:data-bs-target="'#viewModal-' + ${tx.id}">
+                                                View
+                                            </button>
+                                            <!-- Edit Button -->
+                                            <a th:href="@{/transactions-page/edit/{id}(id=${tx.id})}" class="btn btn-secondary btn-sm">
+                                                Edit
+                                            </a>
+                                            <!-- Delete Button -->
+                                            <a th:href="@{/transactions-page/delete/{id}(id=${tx.id})}" class="btn btn-danger btn-sm btn-delete">
+                                                Delete
+                                            </a>
+                                        </div>
+
+                                        <!-- Windows Style Modal -->
+                                        <div class="modal fade text-start" th:id="'viewModal-' + ${tx.id}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content" style="border-radius: var(--radius-lg); border: 1px solid var(--win-border); box-shadow: var(--shadow-popover);">
+                                                    <div class="modal-header" style="border-bottom: 1px solid var(--win-border);">
+                                                        <h5 class="modal-title" style="font-weight: 700;">Transaction Details #<span th:text="${tx.id}"></span></h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body" style="padding: 24px;">
+                                                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                                                            <div style="background: #F8F7FD; padding: 12px 16px; border-radius: var(--radius-sm);">
+                                                                <div style="font-size: 0.74rem; color: #6B7280; font-weight: 600; text-transform: uppercase;">Transaction ID</div>
+                                                                <div style="font-size: 1.1rem; font-weight: 700; color: #1E1B4B;" th:text="'#' + ${tx.id}">#1</div>
+                                                            </div>
+                                                            <div style="background: #F8F7FD; padding: 12px 16px; border-radius: var(--radius-sm);">
+                                                                <div style="font-size: 0.74rem; color: #6B7280; font-weight: 600; text-transform: uppercase;">Amount</div>
+                                                                <div style="font-size: 1.1rem; font-weight: 700; color: #7C5CFC;" th:text="'$' + ${#numbers.formatDecimal(tx.amount, 1, 2)}">$0.00</div>
+                                                            </div>
+                                                            <div style="background: #F8F7FD; padding: 12px 16px; border-radius: var(--radius-sm);">
+                                                                <div style="font-size: 0.74rem; color: #6B7280; font-weight: 600; text-transform: uppercase;">Sender Account</div>
+                                                                <div style="font-size: 0.95rem; font-weight: 600; font-family: monospace;" th:text="${tx.sender}">-</div>
+                                                            </div>
+                                                            <div style="background: #F8F7FD; padding: 12px 16px; border-radius: var(--radius-sm);">
+                                                                <div style="font-size: 0.74rem; color: #6B7280; font-weight: 600; text-transform: uppercase;">Receiver Account</div>
+                                                                <div style="font-size: 0.95rem; font-weight: 600; font-family: monospace;" th:text="${tx.receiver}">-</div>
+                                                            </div>
+                                                            <div style="background: #F8F7FD; padding: 12px 16px; border-radius: var(--radius-sm); grid-column: span 2;">
+                                                                <div style="font-size: 0.74rem; color: #6B7280; font-weight: 600; text-transform: uppercase;">Timestamp</div>
+                                                                <div style="font-size: 0.95rem; font-weight: 600;" th:text="${#temporals.format(tx.timestamp, 'yyyy-MM-dd HH:mm:ss')}">-</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer" style="border-top: 1px solid var(--win-border);">
+                                                        <a th:href="@{/transactions-page/edit/{id}(id=${tx.id})}" class="btn btn-primary btn-sm">Edit</a>
+                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>
